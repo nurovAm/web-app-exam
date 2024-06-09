@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from flask_migrate import Migrate
 from sqlalchemy.exc import SQLAlchemyError
 from models import db, Book, Review, Role, Cover, User
@@ -21,4 +21,4 @@ USER_ROLE_ID = 3
 
 @app.route('/')
 def index():
-    return "Hello world!"
+    return render_template("index.html")
