@@ -19,6 +19,12 @@ ADMIN_ROLE_ID = 1
 MODERATOR_ROLE_ID = 2
 USER_ROLE_ID = 3
 
+from auth import auth_bp, init_login_manager
+
+app.register_blueprint(auth_bp)
+
+
+init_login_manager(app)
 @app.route('/')
 def index():
     return render_template("index.html")
