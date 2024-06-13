@@ -101,6 +101,7 @@ class Book(db.Model):
     author: Mapped[str] = mapped_column(String(255), nullable=False)
     size: Mapped[int] = mapped_column(Integer, nullable=False)
 
+
     image = db.relationship('Cover', cascade="all, delete, delete-orphan")
     reviews = db.relationship('Review', cascade="all, delete, delete-orphan")
     genres = db.relationship('Category', secondary=books_category, cascade="all, delete")
@@ -108,7 +109,7 @@ class Book(db.Model):
     @property
     def score(self):    
         sum = 0
-        reviews = Review.query.filter(Review.review_status_id == 2).filter(Review.book_id == self.id).all()
+        reviews = Review.query.filter(Review.book_id == self.id).all()
 
         for review in reviews:
             sum += review.rating
@@ -120,12 +121,12 @@ class Book(db.Model):
 
     @property
     def reviews_count(self):
-        reviews = Review.query.filter(Review.review_status_id == 2).filter(Review.book_id == self.id).all()
+        reviews = Review.query.filter(Review.book_id == self.id).all()
         return len(reviews)
 
     @property
     def formatted_description(self):
-        return markdown(self.short_description)
+        return markdown.markdown(self.short_desc)
 
     def __repr__(self):
         return '<Book %r>' % self.name
@@ -137,12 +138,19 @@ class Review(db.Model):
     book_id: Mapped[Optional[int]] = mapped_column(ForeignKey("book.id"))
     user_id: Mapped[Optional[int]] = mapped_column(ForeignKey("user.id"))
     rating: Mapped[int] = mapped_column(Integer, nullable=False)
+    
     text: Mapped[str] = mapped_column(Text, nullable=False)
     created_at: Mapped[datetime] = mapped_column( default=datetime.now(), nullable=False,)
 
+    book = db.relationship('Book')
+    user = db.relationship('User')
     @property
     def rating_word(self):
         return RATING_BOOK.get(self.rating)
+    
+    @property
+    def formatted_text(self):
+        return markdown.markdown(self.text)
 
     def __repr__(self):
         return '<Review %r>' % self.id
