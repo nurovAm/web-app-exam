@@ -28,27 +28,45 @@
                        
                        
                         {% if current_user.is_authenticated %}
-                        <div class="dropdown d-flex" style="width: 200px;">
-                            <div class="profile ms-auto" title="{{ current_user.full_name }}" id="dropdownMenuButton" data-bs-toggle="dropdown"
-                                aria-haspopup="true" aria-expanded="false">
-                                <img class="img-fluid rounded-circle cursor-pointer"
-                                    src="{{ url_for('static', filename='images/default-profile-picture-300x300.jpeg') }}" alt="profile-pic">
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.endpoint == 'books.create' %}active{% endif %}"
+                                aria-current="page" href="{{ url_for('books.create') }}">Добавить книгу</a>
+                        </li>
+                        <li class="nav-item">
+                            <div class="dropdown d-flex" style="width: 200px;">
+                                <div class="profile ms-auto" title="{{ current_user.full_name }}" id="dropdownMenuButton" data-bs-toggle="dropdown"
+                                    aria-haspopup="true" aria-expanded="false">
+                                    <img class="img-fluid rounded-circle cursor-pointer"
+                                        src="{{ url_for('static', filename='images/default-profile-picture-300x300.jpeg') }}" alt="profile-pic">
+                                </div>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                    <a class="dropdown-item" href="#">Профиль</a>
+                                    <a class="dropdown-item" href="#">Мои курсы</a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="{{ url_for('auth.logout') }}">Выйти</a>
+                                </div>
                             </div>
-                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                <a class="dropdown-item" href="#">Профиль</a>
-                                <a class="dropdown-item" href="#">Мои курсы</a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="{{ url_for('auth.logout') }}">Выйти</a>
-                            </div>
-                        </div>
-                        {% else %}
-                            <a class="btn btn-outline-light" href="{{ url_for('auth.login') }}">Войти</a>
-                        {% endif %}
+                            {% else %}
+                                <a class="btn btn-outline-light" href="{{ url_for('auth.login') }}">Войти</a>
+                            {% endif %}
+                        </li>
+
+                        
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
+    <div class="alerts-area">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, msg in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show m-0 rounded-0" role="alert">
+            {{ msg }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+        {% endwith %}
+    </div>
 
     <main class="main flex-grow-1">
        {% block content %}
@@ -64,7 +82,7 @@
         integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2"
         crossorigin="anonymous"></script>
 
-    <!-- <script defer src="{{ url_for('static', filename='main.js') }}"></script> -->
+    <script defer src="{{ url_for('static', filename='main.js') }}"></script>
 </body>
 
 </html>
