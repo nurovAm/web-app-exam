@@ -27,6 +27,9 @@ RATING_BOOK = {
 }
 db = SQLAlchemy()
 
+
+    
+
 class User(db.Model, UserMixin):
     __tablename__ = "user"
 
@@ -82,12 +85,24 @@ class Role(db.Model):
     def __repr__(self):
         return '<role %r>' % self.name
 
+books_collection = db.Table('books_collection',
+    db.Column('id', db.Integer, primary_key=True),
+    db.Column('book_id', db.Integer, db.ForeignKey('book.id'), nullable=False),
+    db.Column('collection_id', db.Integer, db.ForeignKey('collection.id'), nullable=False)
+)
 
 books_category = db.Table('books_category',
     db.Column('id', db.Integer, primary_key=True),
     db.Column('book_id', db.Integer, db.ForeignKey('book.id'), nullable=False),
     db.Column('category_id', db.Integer, db.ForeignKey('category.id'), nullable=False)
 )
+class Collection(db.Model):
+    __tablename__ = "collection"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
+    books = db.relationship('Book', secondary=books_collection, cascade="all, delete")
 
 class Book(db.Model):
     __tablename__ = 'book'
@@ -100,11 +115,10 @@ class Book(db.Model):
     full_desc:Mapped[str] = mapped_column(Text)
     author: Mapped[str] = mapped_column(String(255), nullable=False)
     size: Mapped[int] = mapped_column(Integer, nullable=False)
-
-
     image = db.relationship('Cover', cascade="all, delete, delete-orphan")
     reviews = db.relationship('Review', cascade="all, delete, delete-orphan")
     genres = db.relationship('Category', secondary=books_category, cascade="all, delete")
+    collectionses = db.relationship('Collection', secondary=books_collection, cascade="all, delete")
 
     @property
     def score(self):    
@@ -193,6 +207,10 @@ class Category(db.Model):
 
     def __repr__(self):
         return '<category %r>' % self.name
-    
+
+
+
+
+
 
 

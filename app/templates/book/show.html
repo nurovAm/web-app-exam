@@ -53,6 +53,7 @@
         <div class="row m-3">
             <p>{{ book.full_desc }}</p>
         </div>
+        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#add-book-collection-modal">Добавить в подборку</button>
     </section>
     <section class="reviews">
         <h3>Рецензии</h3>
@@ -93,9 +94,6 @@
             </div>
             <div class="row mb-3">
                 <textarea class="form-control" name="review-text" id="review-text"></textarea>
-                <script>
-                    const easyMDE = new EasyMDE();
-                </script>
             </div>
 
             <div class="col-md-2 align-self-end">
@@ -105,4 +103,33 @@
         {% endif %}
     </section>
 </div>
+
+<div class="modal fade" id="add-book-collection-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-center">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Добавление в подборку</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Введите название подборки
+                <form action="{{url_for('books.add_book_to_collection', book_id=book.id)}}" method="POST">
+                    
+                    {% for collection in collections %}
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="book_to_collection_name" id="book_to_collection_name_{{collection.name}}" value="{{collection.id}}">
+                        <label class="form-check-label" for="book_to_collection_name_{{collection.name}}">{{collection.name}}</label>
+                    </div>
+                    {% endfor %}
+                    
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Нет</button>
+                        <input type="submit" class="btn btn-danger" value="Добавить"/>
+                    </div>
+                </form>
+            </div>    
+        </div>
+    </div>
+</div>
+<script defer src="{{url_for('static', filename='mde.js')}}"></script>
 {% endblock %}

@@ -15,10 +15,14 @@ PER_PAGE = 10
 
 from auth import auth_bp, init_login_manager
 from books import book_bp
+from collection import collection_bp 
 
 app.register_blueprint(auth_bp)
 app.register_blueprint(book_bp)
+app.register_blueprint(collection_bp)
 
+
+PER_PAGE = 5
 
 init_login_manager(app)
 @app.route('/')
@@ -26,8 +30,10 @@ def index():
     page = request.args.get('page', 1, type=int)
 
     books = Book.query.order_by(Book.publisher_year.desc())
-
-    return render_template('index.html', books=books)
+    pagination = books.paginate(page=page, per_page=PER_PAGE, error_out=False)
+    books = pagination.items
+    
+    return render_template('index.html', books=books, pagination=pagination)
 
 @app.route('/media/images/<string:image_id>')
 def image(image_id):

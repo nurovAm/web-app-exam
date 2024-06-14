@@ -5,7 +5,7 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from app import db, app
-from models import Book, Review, Category, Role, Cover, User
+from models import Book, Review, Category, Role, Cover, User, Collection
 from auth import check_rights
 from tools import ImageSaver
 
@@ -16,7 +16,8 @@ book_bp = Blueprint('books', __name__, url_prefix='/books')
 def show(book_id):
     book = Book.query.get(book_id)
     image = Cover.query.filter(Cover.book_id == book_id).first()
-    return render_template('book/show.html', book=book, image=image)
+    collections = Collection().query.all()
+    return render_template('book/show.html', book=book, image=image, collections=collections)
 
 
 @book_bp.route('/create', methods=['GET', 'POST'])
@@ -164,3 +165,21 @@ def create_review(book_id):
         flash('При создании рецензии возникла ошибка. Проверьте корректность введённых данных.', 'warning')
         return redirect(url_for('books.show', book_id=book_id))
     
+
+@book_bp.route('/<int:book_id>/add_book_to_collection', methods=['POST'])
+@login_required
+@check_rights('review_book')
+def add_book_to_collection(book_id):
+    try:
+        collection_id = request.form.get('book_to_collection_name')
+        book = Book.query.get(book_id)
+        collection = Collection.query.get(collection_id)
+        book.collectionses.append(collection)
+        db.session.add(book)
+        db.session.commit()
+        flash('Книга добавлена в подборку.', 'success')
+        return redirect(url_for('books.show', book_id=book_id))
+    except:
+        db.session.rollback()
+        flash('При добавлении книги в подборку возникла ошибка. Проверьте корректность введённых данных.', 'warning')
+        return redirect(url_for('books.show', book_id=book_id))

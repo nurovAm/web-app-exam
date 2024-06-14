@@ -32,3 +32,7 @@ class UsersPolicy:
             Review.book_id == self.book_id).filter(
                 Review.user_id == current_user.id).first() is None and current_user.is_authenticated
         return is_reviewing_user
+    
+    def add_cllection(self):
+        is_add_collection = current_user.is_user
+        return is_add_collection
