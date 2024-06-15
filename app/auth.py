@@ -49,3 +49,34 @@ def check_rights(action):
             return function(*args, **kwargs)
         return wrapper
     return decorator
+
+
+
+def check_rights_collection(action):
+    def decorator(function):
+        @functools.wraps(function)
+        def wrapper(*args, **kwargs):
+            user_id = kwargs.get('user_id')
+            if not current_user.can_coll(action, user_id=user_id):
+                flash('У вас недостаточно прав для доступа к данной странице.', 'danger')
+                return redirect(url_for('index'))
+            return function(*args, **kwargs)
+        return wrapper
+    return decorator
+
+
+def check_rights_to_coll(action):
+    def decorator(function):
+        @functools.wraps(function)
+        def wrapper(*args, **kwargs):
+            collection_id = kwargs.get('collection_id')
+            if not current_user.can_collection(action, collection_id=collection_id):
+                flash('У вас недостаточно прав для доступа к данной странице.', 'danger')
+                return redirect(url_for('index'))
+            return function(*args, **kwargs)
+        return wrapper
+    return decorator
+
+
+
+

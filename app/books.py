@@ -16,8 +16,10 @@ book_bp = Blueprint('books', __name__, url_prefix='/books')
 def show(book_id):
     book = Book.query.get(book_id)
     image = Cover.query.filter(Cover.book_id == book_id).first()
-    collections = Collection().query.all()
-    return render_template('book/show.html', book=book, image=image, collections=collections)
+    if current_user.is_authenticated:
+        collections = Collection.query.filter(Collection.user_id == current_user.id)
+        return render_template('book/show.html', book=book, image=image, collections=collections)
+    return render_template('book/show.html', book=book, image=image)
 
 
 @book_bp.route('/create', methods=['GET', 'POST'])
@@ -36,7 +38,6 @@ def create():
             book.publisher = bleach.clean(request.form.get('book_publisher'))
             book.publisher_year = request.form.get('book_publish_year')
             book.size = request.form.get('book_volume')
-            book.full_desc = bleach.clean(request.form.get('book_full_description'))
 
             for genre_id in request.form.getlist('book_genres'):
                 genre = Category.query.get(genre_id)
@@ -51,7 +52,8 @@ def create():
 
             flash('Книга успешно добавлена.', 'success')
             return redirect(url_for('books.show', book_id=book.id))
-        except:
+        except Exception as e:
+            print(e, '=============================================================')
             db.session.rollback()
             flash(
                 'При сохранении данных возникла ошибка. Проверьте корректность введённых данных.', 'warning')
@@ -76,11 +78,12 @@ def edit(book_id):
     genres_count = len(genres)
 
     book = Book.query.get(book_id)
-
+    image = Cover.query.filter(Cover.book_id == book_id).first()
+    collections = Collection.query.filter(Collection.user_id == current_user.id)
     if request.method == 'POST':
         try:
             book.name = bleach.clean(request.form.get('book_title'))
-            book.short_description = bleach.clean(request.form.get('book_short_description'))
+            book.short_desc = bleach.clean(request.form.get('book_short_description'))
             book.author = bleach.clean(request.form.get('book_author'))
             book.publisher = bleach.clean(request.form.get('book_publisher'))
             book.publisher_year = request.form.get('book_publish_year')
@@ -98,7 +101,7 @@ def edit(book_id):
             db.session.commit()
 
             flash('Книга успешно обновлена.', 'success')
-            return redirect(url_for('index'))
+            return render_template('book/show.html', book=book, image=image, collections=collections)
         except:
             db.session.rollback()
             flash(
@@ -131,6 +134,7 @@ def delete(book_id):
                 app.config['UPLOAD_FOLDER'], image.storage_filename)
 
         book.genres.clear()
+        book.collectionses.clear()
         db.session.delete(book)
         db.session.commit()
 
@@ -146,40 +150,54 @@ def delete(book_id):
 
 @book_bp.route('/<int:book_id>/create_review', methods=['POST'])
 @login_required
-@check_rights('review_book')
+@check_rights('read_book')
 def create_review(book_id):
-    try:
-        review = Review()
-        review.rating = request.form.get('review-rating')
-        review.text = bleach.clean(request.form.get('review-text'))
-        review.book_id = book_id
-        review.user_id = current_user.id
+    check_review = Review.query.filter_by(book_id=book_id, user_id=current_user.id).first()
+    print(check_review, '--------------------------------------------------------')
+    if check_review:
+        flash('Вы уже оставили отзыв.', 'danger')
+    else:
+        try:
+            review = Review()
+            review.rating = request.form.get('review-rating')
+            review.text = bleach.clean(request.form.get('review-text'))
+            review.book_id = book_id
+            review.user_id = current_user.id
 
-        db.session.add(review)
-        db.session.commit()
+            db.session.add(review)
+            db.session.commit()
 
-        flash('Рецензия отправлена.', 'success')
-        return redirect(url_for('books.show', book_id=book_id))
-    except:
-        db.session.rollback()
-        flash('При создании рецензии возникла ошибка. Проверьте корректность введённых данных.', 'warning')
-        return redirect(url_for('books.show', book_id=book_id))
+            flash('Рецензия отправлена.', 'success')
+            return redirect(url_for('books.show', book_id=book_id))
+        except:
+            db.session.rollback()
+            flash('При создании рецензии возникла ошибка. Проверьте корректность введённых данных.', 'warning')
+            return redirect(url_for('books.show', book_id=book_id))
+    return redirect(url_for('books.show', book_id=book_id))
     
 
 @book_bp.route('/<int:book_id>/add_book_to_collection', methods=['POST'])
 @login_required
-@check_rights('review_book')
+@check_rights('add_cllection')
 def add_book_to_collection(book_id):
-    try:
-        collection_id = request.form.get('book_to_collection_name')
-        book = Book.query.get(book_id)
-        collection = Collection.query.get(collection_id)
-        book.collectionses.append(collection)
-        db.session.add(book)
-        db.session.commit()
-        flash('Книга добавлена в подборку.', 'success')
-        return redirect(url_for('books.show', book_id=book_id))
-    except:
-        db.session.rollback()
-        flash('При добавлении книги в подборку возникла ошибка. Проверьте корректность введённых данных.', 'warning')
-        return redirect(url_for('books.show', book_id=book_id))
+    collection_id = request.form.get('book_to_collection_name')
+    book = Book.query.get(book_id)
+    collection = Collection.query.get(collection_id)
+    fl = False
+    for book in collection.books:
+        if book.id == book_id:
+            fl = True
+    if fl:
+        flash('Книга уже добавлена в подборку.', 'danger')
+    else:
+        try:
+            book.collectionses.append(collection)
+            db.session.add(book)
+            db.session.commit()
+            flash('Книга добавлена в подборку.', 'success')
+            return redirect(url_for('books.show', book_id=book_id))
+        except:
+            db.session.rollback()
+            flash('При добавлении книги в подборку возникла ошибка. Проверьте корректность введённых данных.', 'warning')
+            return redirect(url_for('books.show', book_id=book_id))
+    return redirect(url_for('books.show', book_id=book_id))

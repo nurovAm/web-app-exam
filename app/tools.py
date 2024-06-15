@@ -15,6 +15,16 @@ class ImageSaver():
     def save(self):
         self.img = self.__find_by_md5_hash()
         if self.img is not None:
+            file_name = secure_filename(self.file.filename)
+            self.img = Cover(id=str(uuid.uuid4()), 
+                        file_name=file_name, 
+                        mime_type=self.file.mimetype, 
+                        md5_hash=self.md5_hash,
+                        book_id = self.book.id
+                        )
+            print('------------------------------------------------------book_id', self.img.book_id)
+            db.session.add(self.img)
+            db.session.commit()
             return self.img
         
         file_name = secure_filename(self.file.filename)

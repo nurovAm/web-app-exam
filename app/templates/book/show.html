@@ -50,10 +50,9 @@
         <div class="row m-3">
             <p>{{ book.formatted_description|safe }}</p>
         </div>
-        <div class="row m-3">
-            <p>{{ book.full_desc }}</p>
-        </div>
-        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#add-book-collection-modal">Добавить в подборку</button>
+        {%if current_user.is_user %}
+            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#add-book-collection-modal">Добавить в подборку</button>
+        {% endif %}
     </section>
     <section class="reviews">
         <h3>Рецензии</h3>
@@ -69,7 +68,12 @@
                 {% for review in book.reviews %}
 
                 <tr>
-                    <td>{{ review.user.first_name }} {{review.user.last_name}}</td>
+                    {% if review.user.id == current_user.id %}
+                        <td>Ваш комментарий</td>
+                    {% else %}
+                        <td>{{ review.user.login }}</td>
+                    {% endif %}
+                    
                     <td>{{ review.rating }}</td>
                     <td>{{ review.formatted_text|safe }}</td>
                 </tr>

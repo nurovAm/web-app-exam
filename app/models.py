@@ -70,6 +70,19 @@ class User(db.Model, UserMixin):
         method = getattr(user_policy, action)
         if method is not None: return method()
         else: return False
+    
+    def can_coll(self, action, user_id = None, collection_id = None):
+        user_policy = UsersPolicy(user_id)
+        method = getattr(user_policy, action)
+        if method is not None: return method()
+        else: return False
+
+    def can_collection(self, action, collection_id = None):
+        user_policy = UsersPolicy(collection_id)
+        method = getattr(user_policy, action)
+        if method is not None: return method()
+        else: return False
+
 
 
     def __repr__(self):
@@ -112,7 +125,6 @@ class Book(db.Model):
     publisher_year: Mapped[int] = mapped_column(Integer, nullable=False)
     publisher: Mapped[str] = mapped_column(String(255), nullable=False)
     short_desc: Mapped[str] = mapped_column(String(500))
-    full_desc:Mapped[str] = mapped_column(Text)
     author: Mapped[str] = mapped_column(String(255), nullable=False)
     size: Mapped[int] = mapped_column(Integer, nullable=False)
     image = db.relationship('Cover', cascade="all, delete, delete-orphan")
@@ -129,7 +141,7 @@ class Book(db.Model):
             sum += review.rating
 
         try:
-            return sum / len(self.reviews)
+            return round(sum / len(self.reviews), 2)
         except ZeroDivisionError:
             return 0.0
 

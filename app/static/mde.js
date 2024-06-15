@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const inputDescElement = document.querySelector('#book_full_description');
+    const inputDescElement = document.querySelector('#book_short_description');
 
     if (inputDescElement) {
         const easyMarkdownEditor = new EasyMDE({

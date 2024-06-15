@@ -14,6 +14,7 @@
             </tr>
         </thead>
         <tbody>
+            
             {% for book in collections.books %}
             <tr>
                 <td class="book-title">{{ book.name }}</td>
@@ -33,7 +34,12 @@
             </tr>
 
             {% endfor %}
+           
         </tbody>
+        
     </table>
+    {% if collections.books|length == 0 %}
+        <p class="text-center">Коллекция пока пуста. Вернитесь на <a href="{{url_for('index')}}">главную</a> страницу для пополнения коллекции</p>
+    {% endif %}
 </div>
 {% endblock %}

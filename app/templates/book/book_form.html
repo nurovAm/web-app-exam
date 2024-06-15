@@ -10,25 +10,15 @@
     </div>
 
 
+
     <div class="row mb-3">
-        <label for="book_short_description" class="col-sm-2 col-form-label">Краткое описание</label>
+        <label for="book_short_description" class="col-sm-2 col-form-label">Полное описание</label>
         <div class="col-sm-10">
             <textarea class="form-control" 
                 name="book_short_description" 
                 id="book_short_description" 
-                data-text="{{ book.short_desc or '' }}">{{ book.short_desc or '' }}</textarea>
-        </div>
-    </div>
-
-
-    <div class="row mb-3">
-        <label for="book_full_description" class="col-sm-2 col-form-label">Полное описание</label>
-        <div class="col-sm-10">
-            <textarea class="form-control" 
-                name="book_full_description" 
-                id="book_full_description" 
-                data-text="{{ book.full_desc or '' }}">
-                {{ book.full_desc or '' }}
+                data-text="{{ book.short_desc or '' }}">
+                {{ book.short_desc or '' }}
             </textarea>
         </div>
     </div>
