@@ -124,7 +124,7 @@ class Book(db.Model):
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     publisher_year: Mapped[int] = mapped_column(Integer, nullable=False)
     publisher: Mapped[str] = mapped_column(String(255), nullable=False)
-    short_desc: Mapped[str] = mapped_column(String(500))
+    short_desc: Mapped[str] = mapped_column(Text)
     author: Mapped[str] = mapped_column(String(255), nullable=False)
     size: Mapped[int] = mapped_column(Integer, nullable=False)
     image = db.relationship('Cover', cascade="all, delete, delete-orphan")
