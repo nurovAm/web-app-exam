@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<table class="table">
+    <tbody>
+        {%for collection in collections%}
+            <tr>
+                <tr >
+                    <td class="collection-name text-center">{{collection.name}}</td>
+                    <td class="collection_button_td">
+                        <div class="btn-group">
+                            <a class="btn btn-primary" href="{{ url_for('collections.show', collection_id=collection.id) }}">Просмотр</a>
+                        </div>
+                    </td>
+                </tr>
+            </tr>
+        {%endfor%}
+    </tbody>
+</table>
+
+
+<button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#add-collection-modal">Добавить коллекцию</button>
+
+<div class="modal fade" id="add-collection-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-center">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Добавление подборки</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Введите название подборки
+                <form action="{{url_for('collections.add_collection', user_id=current_user.id)}}" method="POST">
+                    <input id="collection_name" type="text" name="collection_name">
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Нет</button>
+                        <input type="submit" class="btn btn-danger" value="Добавить"/>
+                    </div>
+                </form>
+            </div>    
+        </div>
+    </div>
+</div>
+{% endblock %}

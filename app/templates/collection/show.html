@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="mb-5">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Название</th>
+                <th>Жанр(ы)</th>
+                <th>Год выхода</th>
+                <th>Средняя оценка пользователей</th>
+                <th>Количество рецензий</th>
+                <th>Дополнительно</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+            {% for book in collections.books %}
+            <tr>
+                <td class="book-title">{{ book.name }}</td>
+                <td>
+                    {% for genre in book.genres %}
+                        {{ genre.name }}<br>
+                    {% endfor %}
+                </td>
+                <td>{{ book.publisher_year}}</td>
+                <td>{{ book.score}}</td>
+                <td>{{ book.reviews_count}}</td>
+                <td>
+                    <div class="btn-group">
+                        <a class="btn btn-primary" href="{{ url_for('books.show', book_id=book.id) }}">Просмотр</a>
+                    </div>
+                </td>
+            </tr>
+
+            {% endfor %}
+           
+        </tbody>
+        
+    </table>
+    {% if collections.books|length == 0 %}
+        <p class="text-center">Коллекция пока пуста. Вернитесь на <a href="{{url_for('index')}}">главную</a> страницу для пополнения коллекции</p>
+    {% endif %}
+</div>
+{% endblock %}
