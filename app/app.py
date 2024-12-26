@@ -35,11 +35,11 @@ def index():
     
     return render_template('index.html', books=books, pagination=pagination)
 
-@app.route('/media/images/<string:image_id>')
-def image(image_id):
-    image = Cover.query.get(image_id)
+#@app.route('/media/images/<string:image_id>')
+#def image(image_id):
+#    image = Cover.query.get(image_id)
 
-    if image is None:
-        abort(404)
+#    if image is None:
+#        abort(404)
 
-    return send_from_directory(app.config['UPLOAD_FOLDER'], image.storage_filename)
+#    return send_from_directory(app.config['UPLOAD_FOLDER'], image.storage_filename)
