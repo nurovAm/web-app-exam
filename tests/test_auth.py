@@ -2,7 +2,7 @@ def test_login_page(client):
     """Тест страницы логина"""
     response = client.get('/auth/login')
     assert response.status_code == 200
-    assert b"Вход" in response.data
+    assert b"Вход" in response.data.decode('UTF-8')
 
 def test_login_success(client, create_user):
     """Тест успешной авторизации"""
