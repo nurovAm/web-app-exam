@@ -1,6 +1,18 @@
 import pytest
 from app import app, db
 from models import User
+import pytest
+
+@pytest.fixture
+def client():
+    app.config['TESTING'] = True
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'  # Используем SQLite в памяти для тестов
+    with app.test_client() as client:
+        with app.app_context():
+            db.create_all()  # Создаем таблицы в тестовой базе данных
+            yield client
+            db.session.remove()
+            db.drop_all()  # Удаляем таблицы после тестов
 
 @pytest.fixture
 def client():
